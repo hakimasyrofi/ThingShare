@@ -1,0 +1,29 @@
+type ItemListed @entity(immutable: true) {
+  id: Bytes!
+  itemId: BigInt! # uint256
+  owner: Bytes! # address
+  metadataUri: String! # string
+  pricePerDay: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ItemRented @entity(immutable: true) {
+  id: Bytes!
+  itemId: BigInt! # uint256
+  renter: Bytes! # address
+  rentalDays: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

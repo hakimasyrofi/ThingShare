@@ -1,0 +1,32 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ThingShare
+    network: sepolia
+    source:
+      address: "0x506abcb17535021E1aE84F65d7FC81f34F49951f"
+      abi: ThingShare
+      startBlock: 7087403
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ItemListed
+        - ItemRented
+        - OwnershipTransferred
+      abis:
+        - name: ThingShare
+          file: ./abis/ThingShare.json
+      eventHandlers:
+        - event: ItemListed(indexed uint256,indexed address,string,uint256)
+          handler: handleItemListed
+        - event: ItemRented(indexed uint256,indexed address,uint256)
+          handler: handleItemRented
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+      file: ./src/thing-share.ts

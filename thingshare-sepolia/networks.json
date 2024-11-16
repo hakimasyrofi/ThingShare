@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "ThingShare": {
+      "address": "0x506abcb17535021E1aE84F65d7FC81f34F49951f",
+      "startBlock": 7087403
+    }
+  }
+}
