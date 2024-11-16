@@ -19,17 +19,23 @@ export const Navbar = () => {
           style={{ width: "auto", height: "auto" }}
         />
       </Link>
-      {/* <nav className="hidden lg:flex gap-6 ml-10">
-        <Link className="text-sm font-medium hover:text-black/70" href="#">
+      <nav className="hidden lg:flex gap-6 ml-10">
+        <Link
+          className="text-sm font-medium hover:text-black/70"
+          href="/listing"
+        >
           Home
         </Link>
-        <Link className="text-sm font-medium hover:text-black/70" href="#">
-          About
+        <Link className="text-sm font-medium hover:text-black/70" href="/chat">
+          Chat
         </Link>
-        <Link className="text-sm font-medium hover:text-black/70" href="#">
-          Blog
+        <Link
+          className="text-sm font-medium hover:text-black/70"
+          href="/my-listing"
+        >
+          My Listing
         </Link>
-      </nav> */}
+      </nav>
       <div className="ml-auto flex gap-4">
         <ConnectButton
           chainStatus={"icon"}

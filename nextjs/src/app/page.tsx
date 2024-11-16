@@ -22,7 +22,10 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="mx-auto flex flex-col gap-4 min-[400px]:flex-row mb-8">
-                <Button className="rounded-full bg-black text-white hover:bg-black/90">
+                <Button
+                  className="rounded-full bg-black text-white hover:bg-black/90"
+                  onClick={() => (window.location.href = "/listing")}
+                >
                   Start Renting
                 </Button>
                 <Button variant="outline" className="rounded-full border-2">
