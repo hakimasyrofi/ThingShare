@@ -5,7 +5,7 @@ import {Script, console} from "forge-std/Script.sol";
 import {ThingShare} from "../src/ThingShare.sol";
 
 contract Deploy is Script {
-    function deployTrip() external returns (ThingShare) {
+    function run() external returns (ThingShare) {
         vm.startBroadcast();
         ThingShare thingShare = new ThingShare();
         vm.stopBroadcast();

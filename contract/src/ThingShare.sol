@@ -7,6 +7,7 @@ contract ThingShare is Ownable {
     struct RentalItem {
         address owner;
         string metadataUri; // IPFS hash of metadata
+        uint256 pricePerDay;
         bool isAvailable;
     }
 
@@ -16,7 +17,8 @@ contract ThingShare is Ownable {
     event ItemListed(
         uint256 indexed itemId,
         address indexed owner,
-        string metadataUri
+        string metadataUri,
+        uint256 pricePerDay
     );
 
     event ItemRented(
@@ -24,6 +26,8 @@ contract ThingShare is Ownable {
         address indexed renter,
         uint256 rentalDays
     );
+
+    constructor() Ownable(msg.sender) {}
 
     // Function to list an item
     function listItem(string memory metadataUri, uint256 pricePerDay) external {
