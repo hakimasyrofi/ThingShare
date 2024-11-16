@@ -3,8 +3,39 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
+import { useParams } from "next/navigation";
+import abiThingShare from "@/lib/abiThingShare.json";
+import { useReadContract, useWriteContract } from "wagmi";
+import { parseEther } from "ethers";
 
 export default function PaymentPage() {
+  const { id } = useParams();
+  const { writeContractAsync } = useWriteContract();
+  const wagmiContractConfig = {
+    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    abi: abiThingShare,
+  };
+  const { data: invoiceData } = useReadContract({
+    ...wagmiContractConfig,
+    functionName: "getInvoice",
+    args: [id],
+  });
+
+  const handlePayment = async () => {
+    await writeContractAsync({
+      ...wagmiContractConfig,
+      functionName: "payInvoice",
+      args: [id],
+      value: totalPrice,
+    });
+  };
+
+  if (!invoiceData) {
+    return <div>Loading...</div>;
+  }
+
+  const { itemId, totalPrice, dayLongRent, isPaid } = invoiceData;
+
   return (
     <div className="min-h-screen bg-white pt-12">
       <main className="container mx-auto px-4 py-8">
@@ -15,14 +46,17 @@ export default function PaymentPage() {
               <div className="pt-6 border-t space-y-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Number of Days</span>
-                  <span>2 days</span>
+                  <span>{dayLongRent} days</span>
                 </div>
                 <div className="flex justify-between font-medium pt-4 border-t">
                   <span>Total</span>
-                  <span>0.021 ETH</span>
+                  <span>{parseEther(totalPrice)} ETH</span>
                 </div>
               </div>
-              <Button className="w-full rounded-full bg-black text-white hover:bg-black/90">
+              <Button
+                className="w-full rounded-full bg-black text-white hover:bg-black/90"
+                onClick={handlePayment}
+              >
                 Confirm Payment
               </Button>
             </Card>
@@ -42,7 +76,7 @@ export default function PaymentPage() {
                     Premium Laptop Backpack - Black Edition
                   </h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    Rental Period: 2 days
+                    Rental Period: {dayLongRent} days
                   </p>
                   <div className="flex items-center gap-2 mt-4">
                     <div className="h-3 w-3 rounded-full bg-[#10B981]" />
