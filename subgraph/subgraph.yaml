@@ -8,9 +8,9 @@ dataSources:
     name: ThingShare
     network: sepolia
     source:
-      address: "0x506abcb17535021E1aE84F65d7FC81f34F49951f"
+      address: "0x5E7952bB40974a7C6C40aDA97762ad8c29bE844a"
       abi: ThingShare
-      startBlock: 7087403
+      startBlock: 7091106
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
