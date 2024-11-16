@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -26,15 +28,13 @@ export default function PaymentPage() {
       ...wagmiContractConfig,
       functionName: "payInvoice",
       args: [id],
-      value: totalPrice,
+      value: (invoiceData as any)?.totalPrice,
     });
   };
 
   if (!invoiceData) {
     return <div>Loading...</div>;
   }
-
-  const { itemId, totalPrice, dayLongRent, isPaid } = invoiceData;
 
   return (
     <div className="min-h-screen bg-white pt-12">
@@ -46,11 +46,13 @@ export default function PaymentPage() {
               <div className="pt-6 border-t space-y-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Number of Days</span>
-                  <span>{dayLongRent} days</span>
+                  <span>{(invoiceData as any)?.dayLongRent} days</span>
                 </div>
                 <div className="flex justify-between font-medium pt-4 border-t">
                   <span>Total</span>
-                  <span>{parseEther(totalPrice)} ETH</span>
+                  <span>
+                    {parseEther((invoiceData as any)?.totalPrice)} ETH
+                  </span>
                 </div>
               </div>
               <Button
@@ -76,7 +78,7 @@ export default function PaymentPage() {
                     Premium Laptop Backpack - Black Edition
                   </h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    Rental Period: {dayLongRent} days
+                    Rental Period: {(invoiceData as any)?.dayLongRent} days
                   </p>
                   <div className="flex items-center gap-2 mt-4">
                     <div className="h-3 w-3 rounded-full bg-[#10B981]" />
