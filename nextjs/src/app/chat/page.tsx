@@ -18,6 +18,7 @@ export default function Chat() {
   const [userChat, setUserChat] = useState<any>(null);
   const [chatData, setChatData] = useState<any>([]);
   const [conversations, setConversations] = useState<any[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
 
   const { data: walletClient } = useWalletClient();
   const bobAddress = "0x622bd780C77c4d570E35aB47B829db601e606E40"; // Replace with the actual address
@@ -30,39 +31,9 @@ export default function Chat() {
         const signer = await provider.getSigner();
         const user = await PushAPI.initialize(signer);
         setUserChat(user);
-        const chatHistory = await user.chat.history(bobAddress);
-        console.log(chatHistory);
-        setChatData(chatHistory);
-
         const chatList = await user.chat.list("CHATS");
         console.log(chatList);
-        if (chatList && chatList.length > 0) {
-          setConversations(chatList);
-        } else {
-          setConversations([
-            {
-              id: 1,
-              name: "John Doe",
-              avatar: "/placeholder.svg",
-              lastMessage: "That sounds great! When can I pick it up?",
-              lastMessageTime: "2m ago",
-            },
-            {
-              id: 2,
-              name: "Jane Smith",
-              avatar: "/placeholder.svg",
-              lastMessage: "Is the laptop still available?",
-              lastMessageTime: "1h ago",
-            },
-            {
-              id: 3,
-              name: "Mike Johnson",
-              avatar: "/placeholder.svg",
-              lastMessage: "Thanks for the quick response!",
-              lastMessageTime: "2h ago",
-            },
-          ]);
-        }
+        setConversations(chatList);
       };
 
       initPushClient();
@@ -71,16 +42,25 @@ export default function Chat() {
 
   const handleSendMessage = async (e: any) => {
     e.preventDefault();
-    if (userChat && currentMessage) {
+    if (userChat && currentMessage && selectedConversation) {
       console.log("start message");
       // Send message using Push Protocol
-      await userChat.chat.send(bobAddress, {
+      await userChat.chat.send(selectedConversation.did, {
         type: "Text",
         content: currentMessage,
       });
       console.log("message sent");
       setCurrentMessage("");
+      // Fetch updated chat history
+      const chatHistory = await userChat.chat.history(selectedConversation.did);
+      setChatData(chatHistory);
     }
+  };
+
+  const handleConversationSelect = async (conversation: any) => {
+    setSelectedConversation(conversation);
+    const chatHistory = await userChat.chat.history(conversation.did);
+    setChatData(chatHistory);
   };
 
   return (
@@ -100,6 +80,7 @@ export default function Chat() {
                 conversations.map((conversation) => (
                   <button
                     key={conversation.chatId}
+                    onClick={() => handleConversationSelect(conversation)}
                     className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left"
                   >
                     <Avatar className="h-10 w-10 border">
@@ -134,12 +115,23 @@ export default function Chat() {
           <div className="border-b pb-4 mb-4">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 border">
-                <AvatarImage src="/placeholder.svg" alt="Current chat" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarImage
+                  src={selectedConversation?.profilePicture}
+                  alt={selectedConversation?.did}
+                />
+                <AvatarFallback>-</AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="font-medium">Gaming PC Rental Discussion</h2>
-                <p className="text-sm text-gray-500">with John Doe</p>
+                <h2 className="font-medium">
+                  {selectedConversation
+                    ? `${selectedConversation.did?.replace("eip155:", "")}`
+                    : "Select a conversation"}
+                </h2>
+                {/* <p className="text-sm text-gray-500">
+                  {selectedConversation
+                    ? selectedConversation.did?.replace("eip155:", "")
+                    : ""}
+                </p> */}
               </div>
             </div>
           </div>
@@ -165,9 +157,6 @@ export default function Chat() {
                         : "bg-gray-100"
                     }`}
                   >
-                    <p className="text-sm">
-                      <strong>From:</strong> {chat.fromDID}
-                    </p>
                     <p className="text-sm">{chat.messageContent}</p>
                     <p className="text-sm">
                       <strong>Timestamp:</strong>{" "}
