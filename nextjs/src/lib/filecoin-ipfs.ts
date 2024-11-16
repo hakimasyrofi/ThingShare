@@ -13,8 +13,8 @@ const lighthouseApiKey = process.env.NEXT_PUBLIC_LIGHTHOUSE_API_KEY || "";
 export async function uploadToLighthouse(file: File) {
   try {
     const uploadResponse = await lighthouse.upload([file], lighthouseApiKey);
-    console.log(uploadResponse);
-    return uploadResponse;
+    console.log("File uploaded successfully:", uploadResponse.data);
+    return uploadResponse.data.Hash;
   } catch (error) {
     console.error("Error uploading file:", error);
     throw error;

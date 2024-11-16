@@ -9,8 +9,16 @@ import { uploadToLighthouse } from "@/lib/filecoin-ipfs";
 import { ImageIcon, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { parseEther } from "ethers";
+import { useRouter } from "next/navigation";
+
+import { useWriteContract } from "wagmi";
+import abiThingShare from "@/lib/abiThingShare.json";
 
 export default function CreateListing() {
+  const router = useRouter();
+  const { writeContractAsync } = useWriteContract();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -55,8 +63,30 @@ export default function CreateListing() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(formData);
-    const response = await uploadToLighthouse(formData.image!);
-    console.log(response);
+    const imageCID = await uploadToLighthouse(formData.image!);
+
+    const metadata = {
+      name: formData.name,
+      description: formData.description,
+      image: `ipfs://${imageCID}`,
+    };
+
+    const metadataBlob = new Blob([JSON.stringify(metadata)], {
+      type: "application/json",
+    });
+    const metadataFile = new File([metadataBlob], "metadata.json");
+
+    const metadataCID = await uploadToLighthouse(metadataFile);
+    const metadataUri = `ipfs://${metadataCID}`;
+    const pricePerDay = parseEther(parseFloat(formData.price).toString());
+
+    writeContractAsync({
+      abi: abiThingShare,
+      address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+      functionName: "listItem",
+      args: [metadataUri, pricePerDay],
+    });
+    router.push("/my-listing");
   };
 
   return (
