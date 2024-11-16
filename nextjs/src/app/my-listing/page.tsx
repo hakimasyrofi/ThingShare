@@ -9,6 +9,7 @@ import Image from "next/image";
 import { getListingsByOwner } from "@/lib/subgraph";
 import { Item } from "@/interface/item.interface";
 import { useAccount } from "wagmi";
+import { parseEther } from "ethers";
 
 export default function MyListings() {
   const { address } = useAccount();
@@ -79,7 +80,9 @@ export default function MyListings() {
                     </Badge>
                   </div>
                   <div className="mt-4 flex items-baseline gap-2">
-                    <span className="text-2xl font-bold">{item.price} USD</span>
+                    <span className="text-2xl font-bold">
+                      {parseEther(item.price)} ETH
+                    </span>
                     <span className="text-gray-500">/day</span>
                   </div>
                 </div>

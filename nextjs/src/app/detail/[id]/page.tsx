@@ -61,8 +61,8 @@ export default function Detail() {
       // Navigate to chat page and send a message
       const message =
         messageType === "rent"
-          ? `I would like to rent ${item.metadata.name} for ${rentalDays} days.`
-          : `I would like to make an offer for ${item.metadata.name}, ${window.location.origin}/detail/1.`;
+          ? `I would like to rent ${item.metadata.name} item id: ${item.id} for ${rentalDays} days.`
+          : `I would like to make an offer for ${item.metadata.name} item id: ${item.id}.`;
 
       try {
         if (!walletClient) {

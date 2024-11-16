@@ -65,8 +65,7 @@ export default function Chat() {
       // Send message using Push Protocol
 
       if (currentMessage.startsWith("INVOICE/")) {
-        const url = new URL(currentMessage);
-        const pathSegments = url.pathname.split("/");
+        const pathSegments = currentMessage.split("/");
         const productId = pathSegments[1];
         const dayLong = pathSegments[2];
         const totalPrice = pathSegments[3];
