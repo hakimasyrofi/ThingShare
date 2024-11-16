@@ -28,7 +28,7 @@ export default function Listing() {
 
   return (
     <div className="min-h-screen bg-white">
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-16">
         <div className="flex gap-4 mb-8">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />

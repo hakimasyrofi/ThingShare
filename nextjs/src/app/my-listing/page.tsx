@@ -9,7 +9,7 @@ import Image from "next/image";
 import { getListingsByOwner } from "@/lib/subgraph";
 import { Item } from "@/interface/item.interface";
 import { useAccount } from "wagmi";
-import { parseEther } from "ethers";
+import { formatEther } from "ethers";
 
 export default function MyListings() {
   const { address } = useAccount();
@@ -34,7 +34,7 @@ export default function MyListings() {
 
   return (
     <div className="min-h-screen bg-white md:p-8">
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pb-8 pt-16">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="flex items-center justify-between">
             <div>
@@ -81,7 +81,7 @@ export default function MyListings() {
                   </div>
                   <div className="mt-4 flex items-baseline gap-2">
                     <span className="text-2xl font-bold">
-                      {parseEther(item.price)} ETH
+                      {formatEther(item.price)} ETH
                     </span>
                     <span className="text-gray-500">/day</span>
                   </div>
