@@ -98,27 +98,29 @@ export default function Chat() {
             <div className="space-y-2">
               {conversations.map((conversation) => (
                 <button
-                  key={conversation.id}
+                  key={conversation.chatId}
                   className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left"
                 >
                   <Avatar className="h-10 w-10 border">
                     <AvatarImage
-                      src={conversation.avatar}
-                      alt={conversation.name}
+                      src={conversation.profilePicture}
+                      alt={conversation.did}
                     />
-                    <AvatarFallback>{conversation?.name?.[0]}</AvatarFallback>
+                    <AvatarFallback>{conversation.did?.[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 overflow-hidden">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-sm">
-                        {conversation.name}
+                        {conversation.did}
                       </span>
                       <span className="text-xs text-gray-500">
-                        {conversation.lastMessageTime}
+                        {new Date(
+                          conversation.intentTimestamp
+                        ).toLocaleString()}
                       </span>
                     </div>
                     <p className="text-sm text-gray-500 truncate">
-                      {conversation.lastMessage}
+                      {conversation.msg.messageContent}
                     </p>
                   </div>
                 </button>
