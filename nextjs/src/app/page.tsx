@@ -16,9 +16,8 @@ export default function LandingPage() {
                   Marketplace.
                 </h1>
                 <p className="mx-auto max-w-[600px] text-zinc-500 md:text-xl">
-                  Rent or lend assets seamlessly across multiple blockchains.
-                  Smart contract-secured transactions with cross-chain
-                  compatibility.
+                  Decentralized marketplace for renting and lending daily items
+                  effortlessly.
                 </p>
               </div>
               <div className="mx-auto flex flex-col gap-4 min-[400px]:flex-row mb-8">
@@ -33,10 +32,6 @@ export default function LandingPage() {
                 </Button>
               </div>
               <div className="mx-auto grid gap-8 md:grid-cols-3 [&>*]:mx-auto">
-                <div className="flex flex-col items-center space-y-2 rounded-xl bg-[#F3F4FF] p-4 min-w-[240px]">
-                  <div className="text-xl font-bold">Cross Chain</div>
-                  <p className="text-sm text-zinc-500">Powered by LayerZero</p>
-                </div>
                 <div className="flex flex-col items-center space-y-2 rounded-xl bg-[#F3F4FF] p-4 min-w-[240px]">
                   <div className="text-xl font-bold">Web3 Messaging</div>
                   <p className="text-sm text-zinc-500">
