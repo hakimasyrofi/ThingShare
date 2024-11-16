@@ -21,7 +21,6 @@ export default function Chat() {
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
 
   const { data: walletClient } = useWalletClient();
-  const bobAddress = "0x622bd780C77c4d570E35aB47B829db601e606E40"; // Replace with the actual address
 
   useEffect(() => {
     if (walletClient && address) {
@@ -31,7 +30,11 @@ export default function Chat() {
         const signer = await provider.getSigner();
         const user = await PushAPI.initialize(signer);
         setUserChat(user);
-        const chatList = await user.chat.list("CHATS");
+        const [chats, requests] = await Promise.all([
+          user.chat.list("CHATS"),
+          user.chat.list("REQUESTS"),
+        ]);
+        const chatList = [...chats, ...requests];
         console.log(chatList);
         setConversations(chatList);
       };
@@ -53,14 +56,18 @@ export default function Chat() {
       setCurrentMessage("");
       // Fetch updated chat history
       const chatHistory = await userChat.chat.history(selectedConversation.did);
-      setChatData(chatHistory);
+      setChatData(
+        chatHistory.sort((a: any, b: any) => a.timestamp - b.timestamp)
+      );
     }
   };
 
   const handleConversationSelect = async (conversation: any) => {
     setSelectedConversation(conversation);
     const chatHistory = await userChat.chat.history(conversation.did);
-    setChatData(chatHistory);
+    setChatData(
+      chatHistory.sort((a: any, b: any) => a.timestamp - b.timestamp)
+    );
   };
 
   return (
@@ -119,7 +126,7 @@ export default function Chat() {
                   src={selectedConversation?.profilePicture}
                   alt={selectedConversation?.did}
                 />
-                <AvatarFallback>-</AvatarFallback>
+                <AvatarFallback></AvatarFallback>
               </Avatar>
               <div>
                 <h2 className="font-medium">
@@ -169,6 +176,20 @@ export default function Chat() {
                 </div>
               ))}
           </div>
+          {chatData?.length !== 0 && (
+            <div className="flex justify-center mt-4 relative z-10">
+              <Button
+                onClick={() => {
+                  setCurrentMessage(
+                    `${window.location.origin}/payment/{productId}/{pricePerDay}/{dayLong}`
+                  );
+                }}
+                className="bg-blue-500 text-white hover:bg-blue-600"
+              >
+                Send Invoice
+              </Button>
+            </div>
+          )}
           <div className="border-t pt-4 mt-auto">
             <form onSubmit={handleSendMessage} className="flex gap-4">
               <Input

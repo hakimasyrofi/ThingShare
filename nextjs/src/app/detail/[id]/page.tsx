@@ -1,5 +1,8 @@
 "use client";
 
+import { useAccount, useWalletClient } from "wagmi";
+import { useRouter } from "next/navigation";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { Button } from "@/components/ui/button";
 import RangeCalendar from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
@@ -11,13 +14,12 @@ import { addDays, differenceInDays } from "date-fns";
 import { getItemDetails } from "@/lib/subgraph";
 import { Item } from "@/interface/item.interface";
 import { useParams } from "next/navigation";
-import { formatEther } from "ethers";
-import { useRouter } from "next/navigation";
-import { useAccount } from "wagmi";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { ethers, formatEther } from "ethers";
+import { PushAPI } from "@pushprotocol/restapi";
 
 export default function Detail() {
   const router = useRouter();
+  const { data: walletClient } = useWalletClient();
   const { isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
   const { id } = useParams();
@@ -39,7 +41,7 @@ export default function Detail() {
     };
 
     fetchItemDetails();
-  }, []);
+  }, [id]);
 
   const rentalDays =
     dateRange?.from && dateRange?.to
@@ -50,13 +52,33 @@ export default function Detail() {
     return <div>Loading...</div>;
   }
 
-  const handleConnect = () => {
+  const handleRent = async (messageType: string) => {
     if (!isConnected) {
       if (openConnectModal) {
         openConnectModal();
       }
     } else {
-      router.push("/chat");
+      // Navigate to chat page and send a message
+      const message =
+        messageType === "rent"
+          ? `I would like to rent ${item.metadata.name} for ${rentalDays} days.`
+          : `I would like to make an offer for ${item.metadata.name}, ${window.location.origin}/detail/1.`;
+
+      try {
+        if (!walletClient) {
+          throw new Error("Wallet client not found.");
+        }
+        const provider = new ethers.BrowserProvider(walletClient);
+        const signer = await provider.getSigner();
+        const user = await PushAPI.initialize(signer);
+        await user.chat.send(item.owner, {
+          type: "Text",
+          content: message,
+        });
+        router.push("/chat");
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 
@@ -150,14 +172,14 @@ export default function Detail() {
                 </div>
                 <Button
                   className="w-full rounded-full bg-black text-white hover:bg-black/90"
-                  onClick={handleConnect}
+                  onClick={() => handleRent("rent")}
                 >
                   Rent Now
                 </Button>
                 <Button
                   className="w-full rounded-full"
                   variant="outline"
-                  onClick={handleConnect}
+                  onClick={() => handleRent("offer")}
                 >
                   Make an Offer
                 </Button>
