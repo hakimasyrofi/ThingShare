@@ -1,17 +1,12 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, Menu, Wallet } from "lucide-react";
+import { Menu } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export const Navbar = () => {
   return (
-    <header className="fixed top-0 w-full px-4 lg:px-6 h-14 flex items-center border-b bg-white z-50">
+    <header className="fixed top-0 w-full px-4 lg:px-6 py-4 flex items-center border-b bg-white z-50">
       <Button variant="ghost" size="icon" className="lg:hidden">
         <Menu className="h-6 w-6" />
       </Button>
@@ -36,27 +31,11 @@ export const Navbar = () => {
         </Link>
       </nav> */}
       <div className="ml-auto flex gap-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 rounded-full border-2"
-            >
-              <Wallet className="h-4 w-4" />
-              Select Network
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Ethereum</DropdownMenuItem>
-            <DropdownMenuItem>Polygon</DropdownMenuItem>
-            <DropdownMenuItem>Arbitrum</DropdownMenuItem>
-            <DropdownMenuItem>Optimism</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button className="rounded-full bg-black text-white hover:bg-black/90">
-          Connect Wallet
-        </Button>
+        <ConnectButton
+          chainStatus={"icon"}
+          accountStatus={"avatar"}
+          showBalance={false}
+        />
       </div>
       <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#4F46E5] via-[#10B981] to-[#3B82F6]" />
     </header>

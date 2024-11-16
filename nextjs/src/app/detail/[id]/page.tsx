@@ -23,7 +23,7 @@ export default function Detail() {
   return (
     <div className="min-h-screen bg-white md:p-8">
       <div className="flex-1">
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-14">
           <div className="grid lg:grid-cols-[1fr,400px] gap-8">
             <div className="space-y-6">
               <Card className="overflow-hidden border-2 p-2">
