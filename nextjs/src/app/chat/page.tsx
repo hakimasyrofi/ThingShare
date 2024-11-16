@@ -8,9 +8,15 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useAccount, useWalletClient } from "wagmi";
+import {
+  useAccount,
+  useWalletClient,
+  useWriteContract,
+  useReadContract,
+} from "wagmi";
 import { ethers } from "ethers";
 import { PushAPI } from "@pushprotocol/restapi";
+import abiThingShare from "@/lib/abiThingShare.json";
 
 export default function Chat() {
   const { address, isConnected } = useAccount();
@@ -19,8 +25,17 @@ export default function Chat() {
   const [chatData, setChatData] = useState<any>([]);
   const [conversations, setConversations] = useState<any[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
-
+  const { writeContractAsync } = useWriteContract();
+  const wagmiContractConfig = {
+    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    abi: abiThingShare,
+  };
   const { data: walletClient } = useWalletClient();
+  const { data: invoiceId } = useReadContract({
+    ...wagmiContractConfig,
+    functionName: "nextInvoiceId",
+    args: [],
+  });
 
   useEffect(() => {
     if (walletClient && address) {
@@ -48,10 +63,31 @@ export default function Chat() {
     if (userChat && currentMessage && selectedConversation) {
       console.log("start message");
       // Send message using Push Protocol
-      await userChat.chat.send(selectedConversation.did, {
-        type: "Text",
-        content: currentMessage,
-      });
+
+      if (currentMessage.startsWith("INVOICE/")) {
+        const url = new URL(currentMessage);
+        const pathSegments = url.pathname.split("/");
+        const productId = pathSegments[1];
+        const dayLong = pathSegments[2];
+        const totalPrice = pathSegments[3];
+        await writeContractAsync({
+          abi: abiThingShare,
+          address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+          functionName: "createInvoice",
+          args: [productId, dayLong, totalPrice],
+        });
+
+        await userChat.chat.send(selectedConversation.did, {
+          type: "Text",
+          content: `${window.location.origin}/payment/${invoiceId}`,
+        });
+      } else {
+        await userChat.chat.send(selectedConversation.did, {
+          type: "Text",
+          content: currentMessage,
+        });
+      }
+
       console.log("message sent");
       setCurrentMessage("");
       // Fetch updated chat history
@@ -181,7 +217,7 @@ export default function Chat() {
               <Button
                 onClick={() => {
                   setCurrentMessage(
-                    `${window.location.origin}/payment/{productId}/{pricePerDay}/{dayLong}`
+                    `INVOICE/{productId}/{dayLong}/{totalPrice}`
                   );
                 }}
                 className="bg-blue-500 text-white hover:bg-blue-600"
