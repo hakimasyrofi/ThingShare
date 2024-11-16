@@ -12,8 +12,14 @@ import { getItemDetails } from "@/lib/subgraph";
 import { Item } from "@/interface/item.interface";
 import { useParams } from "next/navigation";
 import { formatEther } from "ethers";
+import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 
 export default function Detail() {
+  const router = useRouter();
+  const { isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const { id } = useParams();
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -43,6 +49,16 @@ export default function Detail() {
   if (!item) {
     return <div>Loading...</div>;
   }
+
+  const handleConnect = () => {
+    if (!isConnected) {
+      if (openConnectModal) {
+        openConnectModal();
+      }
+    } else {
+      router.push("/chat");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white md:p-8">
@@ -132,10 +148,17 @@ export default function Detail() {
                     {formatEther(Number(item.price) * rentalDays)} ETH
                   </span>
                 </div>
-                <Button className="w-full rounded-full bg-black text-white hover:bg-black/90">
+                <Button
+                  className="w-full rounded-full bg-black text-white hover:bg-black/90"
+                  onClick={handleConnect}
+                >
                   Rent Now
                 </Button>
-                <Button className="w-full rounded-full" variant="outline">
+                <Button
+                  className="w-full rounded-full"
+                  variant="outline"
+                  onClick={handleConnect}
+                >
                   Make an Offer
                 </Button>
               </div>

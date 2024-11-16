@@ -10,13 +10,13 @@ import { Send } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAccount, useWalletClient } from "wagmi";
 import { ethers } from "ethers";
-import { PushAPI, CONSTANTS } from "@pushprotocol/restapi";
+import { PushAPI } from "@pushprotocol/restapi";
 
 export default function Chat() {
   const { address, isConnected } = useAccount();
   const [currentMessage, setCurrentMessage] = useState("");
   const [userChat, setUserChat] = useState<any>(null);
-  const [chatData, setChatData] = useState<any>(null);
+  const [chatData, setChatData] = useState<any>([]);
   const [conversations, setConversations] = useState<any[]>([]);
 
   const { data: walletClient } = useWalletClient();
@@ -96,35 +96,37 @@ export default function Chat() {
               </TabsList>
             </Tabs>
             <div className="space-y-2">
-              {conversations.map((conversation) => (
-                <button
-                  key={conversation.chatId}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left"
-                >
-                  <Avatar className="h-10 w-10 border">
-                    <AvatarImage
-                      src={conversation.profilePicture}
-                      alt={conversation.did}
-                    />
-                    <AvatarFallback>{conversation.did?.[0]}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">
-                        {conversation.did.replace("eip155:", "")}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {new Date(
-                          conversation.intentTimestamp
-                        ).toLocaleString()}
-                      </span>
+              {conversations?.length !== 0 &&
+                conversations.map((conversation) => (
+                  <button
+                    key={conversation.chatId}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                  >
+                    <Avatar className="h-10 w-10 border">
+                      <AvatarImage
+                        src={conversation.profilePicture}
+                        alt={conversation.did}
+                      />
+                      <AvatarFallback>{conversation.did?.[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 overflow-hidden">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">
+                          {conversation.did?.replace("eip155:", "")}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {conversation.intentTimestamp &&
+                            new Date(
+                              conversation.intentTimestamp
+                            ).toLocaleString()}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 truncate">
+                        {conversation.msg?.messageContent}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-500 truncate">
-                      {conversation.msg.messageContent}
-                    </p>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
             </div>
           </div>
         </div>
@@ -142,12 +144,12 @@ export default function Chat() {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto space-y-4 pb-4">
-            {chatData &&
+            {chatData?.length !== 0 &&
               chatData.map((chat: any, index: number) => (
                 <div
                   key={index}
                   className={`flex gap-3 ${
-                    chat.fromDID.replace("eip155:", "") === address
+                    chat.fromDID?.replace("eip155:", "") === address
                       ? "flex-row-reverse"
                       : ""
                   }`}
@@ -158,7 +160,7 @@ export default function Chat() {
                   </Avatar>
                   <div
                     className={`group relative max-w-[80%] rounded-2xl px-4 py-2 ${
-                      chat.fromDID.replace("eip155:", "") === address
+                      chat.fromDID?.replace("eip155:", "") === address
                         ? "bg-[#4F46E5] text-white"
                         : "bg-gray-100"
                     }`}
