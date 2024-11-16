@@ -21,13 +21,40 @@ const GET_ITEMS = gql`
   }
 `;
 
+const GET_ITEM_DETAILS = gql`
+  query MyQuery($id: ID!) {
+    item(id: $id) {
+      id
+      owner
+      price
+      metadata {
+        description
+        id
+        image
+        name
+      }
+    }
+  }
+`;
+
 // Function to fetch data
 export const getListing = async (): Promise<Item[]> => {
   try {
     const data = await client.request(GET_ITEMS);
-    return data;
+    return data.items;
   } catch (error) {
     console.error("Error fetching data:", error);
+    throw error;
+  }
+};
+
+export const getItemDetails = async (id: string): Promise<Item> => {
+  try {
+    const variables = { id };
+    const data = await client.request(GET_ITEM_DETAILS, variables);
+    return data.item;
+  } catch (error) {
+    console.error("Error fetching item details:", error);
     throw error;
   }
 };

@@ -5,20 +5,44 @@ import RangeCalendar from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DateRange } from "react-day-picker";
 import { addDays, differenceInDays } from "date-fns";
+import { getItemDetails } from "@/lib/subgraph";
+import { Item } from "@/interface/item.interface";
+import { useParams } from "next/navigation";
+import { formatEther } from "ethers";
 
 export default function Detail() {
+  const { id } = useParams();
+
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(),
     to: addDays(new Date(), 1),
   });
+  const [item, setItem] = useState<Item | null>(null);
+
+  useEffect(() => {
+    const fetchItemDetails = async () => {
+      try {
+        const itemData = await getItemDetails((id as string) || "");
+        setItem(itemData);
+      } catch (error) {
+        console.error("Error fetching item details:", error);
+      }
+    };
+
+    fetchItemDetails();
+  }, []);
 
   const rentalDays =
     dateRange?.from && dateRange?.to
       ? differenceInDays(dateRange.to, dateRange.from) + 1
       : 0;
+
+  if (!item) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-white md:p-8">
@@ -29,19 +53,19 @@ export default function Detail() {
               <Card className="overflow-hidden border-2 p-2">
                 <div className="relative aspect-square">
                   <Image
-                    src="/placeholder.svg?height=600&width=600"
-                    alt="Premium Laptop Backpack"
+                    src={item.metadata.image}
+                    alt={item.metadata.name}
                     fill
                     className="object-contain"
                   />
                 </div>
               </Card>
               <div className="space-y-4">
-                <h1 className="text-2xl font-bold">
-                  Premium Laptop Backpack - Black Edition
-                </h1>
+                <h1 className="text-2xl font-bold">{item.metadata.name}</h1>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold">0.01 ETH</span>
+                  <span className="text-3xl font-bold">
+                    {formatEther(item.price)} ETH
+                  </span>
                   <span className="text-gray-500">/day</span>
                 </div>
                 <Tabs defaultValue="details" className="w-full">
@@ -66,15 +90,12 @@ export default function Detail() {
                     <div className="space-y-4">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">Hosted by:</span>
-                        <code className="text-sm">0x8237837182128921</code>
+                        <code className="text-sm">{item.owner}</code>
                       </div>
                       <div className="space-y-2">
                         <span className="font-medium">Description</span>
                         <p className="text-gray-600">
-                          Premium laptop backpack with multiple compartments and
-                          padded laptop sleeve. Perfect for daily use or travel.
-                          Includes water bottle holders and front organizer
-                          pocket.
+                          {item.metadata.description}
                         </p>
                       </div>
                     </div>
@@ -108,7 +129,7 @@ export default function Detail() {
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Total Price:</span>
                   <span className="font-bold">
-                    {(0.01 * rentalDays).toFixed(3)} ETH
+                    {formatEther(item.price * rentalDays)} ETH
                   </span>
                 </div>
                 <Button className="w-full rounded-full bg-black text-white hover:bg-black/90">

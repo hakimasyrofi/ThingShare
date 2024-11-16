@@ -17,7 +17,7 @@ export default function Listing() {
     const fetchItems = async () => {
       try {
         const data = await getListing();
-        setItems(data.items);
+        setItems(data);
       } catch (error) {
         console.error("Error fetching items:", error);
       }
