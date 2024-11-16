@@ -23,7 +23,7 @@ export default function Chat() {
   const bobAddress = "0x622bd780C77c4d570E35aB47B829db601e606E40"; // Replace with the actual address
 
   useEffect(() => {
-    if (walletClient) {
+    if (walletClient && address) {
       // Initialize Push Protocol client
       const initPushClient = async () => {
         const provider = new ethers.BrowserProvider(walletClient);
@@ -84,7 +84,7 @@ export default function Chat() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white md:pt-16 md:pb-8">
       <div className="container mx-auto px-4 py-8 flex gap-6">
         <div className="w-80 hidden lg:block border-r pr-6">
           <div className="space-y-4">
@@ -111,7 +111,7 @@ export default function Chat() {
                   <div className="flex-1 overflow-hidden">
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-sm">
-                        {conversation.did}
+                        {conversation.did.replace("eip155:", "")}
                       </span>
                       <span className="text-xs text-gray-500">
                         {new Date(
@@ -144,17 +144,37 @@ export default function Chat() {
           <div className="flex-1 overflow-y-auto space-y-4 pb-4">
             {chatData &&
               chatData.map((chat: any, index: number) => (
-                <div key={index}>
-                  <p>
-                    <strong>From:</strong> {chat.fromDID}
-                  </p>
-                  <p>
-                    <strong>Message:</strong> {chat.messageContent}
-                  </p>
-                  <p>
-                    <strong>Timestamp:</strong>{" "}
-                    {new Date(chat.timestamp).toLocaleString()}
-                  </p>
+                <div
+                  key={index}
+                  className={`flex gap-3 ${
+                    chat.fromDID.replace("eip155:", "") === address
+                      ? "flex-row-reverse"
+                      : ""
+                  }`}
+                >
+                  <Avatar className="h-8 w-8 border">
+                    <AvatarImage src={chat.avatar} alt={chat.fromDID} />
+                    <AvatarFallback>{chat.fromDID[0]}</AvatarFallback>
+                  </Avatar>
+                  <div
+                    className={`group relative max-w-[80%] rounded-2xl px-4 py-2 ${
+                      chat.fromDID.replace("eip155:", "") === address
+                        ? "bg-[#4F46E5] text-white"
+                        : "bg-gray-100"
+                    }`}
+                  >
+                    <p className="text-sm">
+                      <strong>From:</strong> {chat.fromDID}
+                    </p>
+                    <p className="text-sm">{chat.messageContent}</p>
+                    <p className="text-sm">
+                      <strong>Timestamp:</strong>{" "}
+                      {new Date(chat.timestamp).toLocaleString()}
+                    </p>
+                    <span className="absolute bottom-0 text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {new Date(chat.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
                 </div>
               ))}
           </div>
