@@ -38,14 +38,30 @@ export default function LandingPage() {
                   <p className="text-sm text-zinc-500">Powered by LayerZero</p>
                 </div>
                 <div className="flex flex-col items-center space-y-2 rounded-xl bg-[#FDB022] p-4 min-w-[240px]">
-                  <div className="text-xl font-bold">Zero Knowledge Proof</div>
-                  <p className="text-sm text-zinc-500">
-                    Powered by World ID, Polygon zkEVM, and zkSNARK technology
-                  </p>
-                </div>
-                <div className="flex flex-col items-center space-y-2 rounded-xl border-2 p-4 min-w-[240px]">
-                  <div className="text-xl font-bold">Multichain Indexing</div>
-                  <p className="text-sm text-zinc-500">Powered by The Graph</p>
+                  <div className="flex flex-col items-center space-y-2 rounded-xl bg-[#F3F4FF] p-4 min-w-[240px]">
+                    <div className="text-xl font-bold">Web3 Messaging</div>
+                    <p className="text-sm text-zinc-500">
+                      Powered by Push Protocol
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-center space-y-2 rounded-xl bg-[#FDB022] p-4 min-w-[240px]">
+                    <div className="text-xl font-bold">Blockchain Indexing</div>
+                    <p className="text-sm text-zinc-500">Powered by Subgraph</p>
+                  </div>
+                  <div className="flex flex-col items-center space-y-2 rounded-xl bg-[#E0F7FA] p-4 min-w-[240px]">
+                    <div className="text-xl font-bold">
+                      Decentralized Storage
+                    </div>
+                    <p className="text-sm text-zinc-500">
+                      Powered by IPFS and Filecoin
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-center space-y-2 rounded-xl border-2 p-4 min-w-[240px]">
+                    <div className="text-xl font-bold">Blockchain Explorer</div>
+                    <p className="text-sm text-zinc-500">
+                      Powered by Blockscout API
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
