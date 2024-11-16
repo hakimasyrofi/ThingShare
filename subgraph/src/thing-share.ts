@@ -1,43 +1,51 @@
 import {
   ItemListed as ItemListedEvent,
   ItemRented as ItemRentedEvent,
-  OwnershipTransferred as OwnershipTransferredEvent
-} from "../generated/ThingShare/ThingShare"
+  OwnershipTransferred as OwnershipTransferredEvent,
+  ThingShare,
+} from "../generated/ThingShare/ThingShare";
 import {
   ItemListed,
   ItemRented,
-  OwnershipTransferred
-} from "../generated/schema"
+  OwnershipTransferred,
+  Item,
+} from "../generated/schema";
+import { ItemMetadata as ItemMetadataTemplate } from "../generated/templates";
 
 export function handleItemListed(event: ItemListedEvent): void {
-  let entity = new ItemListed(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.itemId = event.params.itemId
-  entity.owner = event.params.owner
-  entity.metadataUri = event.params.metadataUri
-  entity.pricePerDay = event.params.pricePerDay
+  let item = Item.load(event.params.itemId.toString());
+  let contract = ThingShare.bind(event.address);
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  if (!item) {
+    item = new Item(event.params.itemId.toString());
 
-  entity.save()
+    let itemData = contract.rentalItems(event.params.itemId);
+
+    const cid = itemData.getMetadataUri().toString().replace("ipfs://", "");
+
+    item.price = event.params.pricePerDay;
+    item.owner = event.params.owner.toHexString();
+    item.metadata = cid;
+
+    ItemMetadataTemplate.create(cid);
+  }
+
+  item.save();
 }
 
 export function handleItemRented(event: ItemRentedEvent): void {
   let entity = new ItemRented(
     event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.itemId = event.params.itemId
-  entity.renter = event.params.renter
-  entity.rentalDays = event.params.rentalDays
+  );
+  entity.itemId = event.params.itemId;
+  entity.renter = event.params.renter;
+  entity.rentalDays = event.params.rentalDays;
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
 
-  entity.save()
+  entity.save();
 }
 
 export function handleOwnershipTransferred(
@@ -45,13 +53,13 @@ export function handleOwnershipTransferred(
 ): void {
   let entity = new OwnershipTransferred(
     event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.previousOwner = event.params.previousOwner
-  entity.newOwner = event.params.newOwner
+  );
+  entity.previousOwner = event.params.previousOwner;
+  entity.newOwner = event.params.newOwner;
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
 
-  entity.save()
+  entity.save();
 }

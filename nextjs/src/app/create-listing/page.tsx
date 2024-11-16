@@ -80,7 +80,7 @@ export default function CreateListing() {
     const metadataUri = `ipfs://${metadataCID}`;
     const pricePerDay = parseEther(parseFloat(formData.price).toString());
 
-    writeContractAsync({
+    await writeContractAsync({
       abi: abiThingShare,
       address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
       functionName: "listItem",

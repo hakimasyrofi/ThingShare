@@ -27,3 +27,17 @@ type OwnershipTransferred @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type Item @entity {
+  id: ID!
+  metadata: ItemMetadata
+  price: BigInt!
+  owner: String!
+}
+
+type ItemMetadata @entity {
+  id: ID!
+  name: String!
+  description: String!
+  image: String!
+}
