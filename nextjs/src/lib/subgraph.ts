@@ -37,6 +37,22 @@ const GET_ITEM_DETAILS = gql`
   }
 `;
 
+const GET_ITEMS_BY_OWNER = gql`
+  query MyQuery($owner: String!) {
+    items(where: { owner: $owner }) {
+      id
+      metadata {
+        description
+        id
+        image
+        name
+      }
+      price
+      owner
+    }
+  }
+`;
+
 // Function to fetch data
 export const getListing = async (): Promise<Item[]> => {
   try {
@@ -55,6 +71,17 @@ export const getItemDetails = async (id: string): Promise<Item> => {
     return data.item;
   } catch (error) {
     console.error("Error fetching item details:", error);
+    throw error;
+  }
+};
+
+export const getListingsByOwner = async (owner: string): Promise<Item[]> => {
+  try {
+    const variables = { owner };
+    const data = await client.request(GET_ITEMS_BY_OWNER, variables);
+    return data.items;
+  } catch (error) {
+    console.error("Error fetching data:", error);
     throw error;
   }
 };
