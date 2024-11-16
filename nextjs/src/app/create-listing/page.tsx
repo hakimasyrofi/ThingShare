@@ -78,7 +78,7 @@ export default function CreateListing() {
 
     const metadataCID = await uploadToLighthouse(metadataFile);
     const metadataUri = `ipfs://${metadataCID}`;
-    const pricePerDay = parseEther(parseFloat(formData.price).toString());
+    const pricePerDay = parseEther(formData.price.toString());
 
     await writeContractAsync({
       abi: abiThingShare,

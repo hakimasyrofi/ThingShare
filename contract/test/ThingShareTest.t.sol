@@ -43,31 +43,41 @@ contract ThingShareTest is Test {
         thingShare.listItem("ipfs://metadataUri", 0);
     }
 
-    function testRentItem() public {
+    function testCreateInvoiceAndPay() public {
         vm.prank(HOST);
         thingShare.listItem("ipfs://metadataUri", 1 ether);
 
         vm.prank(RENTER);
-        thingShare.rentItem{value: 1 ether}(0, 1);
+        thingShare.createInvoice(0, 1, 1 ether);
+
+        vm.prank(RENTER);
+        thingShare.payInvoice{value: 1 ether}(0);
 
         (, , , bool isAvailable) = thingShare.rentalItems(0);
         assertFalse(isAvailable);
     }
 
-    // function testFailRentItemWithIncorrectPayment() public {
-    //     vm.prank(HOST);
-    //     thingShare.listItem("ipfs://metadataUri", 1 ether);
+    function testFailPayInvoiceWithIncorrectPayment() public {
+        vm.prank(HOST);
+        thingShare.listItem("ipfs://metadataUri", 1 ether);
 
-    //     vm.prank(RENTER);
-    //     thingShare.rentItem{value: 0.5 ether}(0, 1);
-    // }
+        vm.prank(RENTER);
+        thingShare.createInvoice(0, 1, 1 ether);
+
+        vm.prank(RENTER);
+        vm.expectRevert("Incorrect payment amount");
+        thingShare.payInvoice{value: 0.5 ether}(0);
+    }
 
     function testReturnItem() public {
         vm.prank(HOST);
         thingShare.listItem("ipfs://metadataUri", 1 ether);
 
         vm.prank(RENTER);
-        thingShare.rentItem{value: 1 ether}(0, 1);
+        thingShare.createInvoice(0, 1, 1 ether);
+
+        vm.prank(RENTER);
+        thingShare.payInvoice{value: 1 ether}(0);
 
         vm.prank(HOST);
         thingShare.returnItem(0);
@@ -81,9 +91,13 @@ contract ThingShareTest is Test {
         thingShare.listItem("ipfs://metadataUri", 1 ether);
 
         vm.prank(RENTER);
-        thingShare.rentItem{value: 1 ether}(0, 1);
+        thingShare.createInvoice(0, 1, 1 ether);
+
+        vm.prank(RENTER);
+        thingShare.payInvoice{value: 1 ether}(0);
 
         vm.prank(address(0x789));
+        vm.expectRevert("Only the owner can return the item");
         thingShare.returnItem(0);
     }
 
@@ -92,7 +106,10 @@ contract ThingShareTest is Test {
         thingShare.listItem("ipfs://metadataUri", 1 ether);
 
         vm.prank(RENTER);
-        thingShare.rentItem{value: 1 ether}(0, 1);
+        thingShare.createInvoice(0, 1, 1 ether);
+
+        vm.prank(RENTER);
+        thingShare.payInvoice{value: 1 ether}(0);
 
         (, , , bool isAvailable) = thingShare.rentalItems(0);
         assertFalse(isAvailable);

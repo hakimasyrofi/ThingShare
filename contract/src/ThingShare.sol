@@ -11,8 +11,17 @@ contract ThingShare is Ownable {
         bool isAvailable;
     }
 
+    struct Invoice {
+        uint256 itemId;
+        uint256 totalPrice;
+        uint256 dayLongRent;
+        bool isPaid;
+    }
+
     mapping(uint256 => RentalItem) public rentalItems; // Item ID => Rental Item
+    mapping(uint256 => Invoice) public invoices; // Invoice ID => Invoice
     uint256 public nextItemId;
+    uint256 public nextInvoiceId;
 
     event ItemListed(
         uint256 indexed itemId,
@@ -24,6 +33,13 @@ contract ThingShare is Ownable {
     event ItemRented(uint256 indexed itemId, uint256 indexed totalPrice);
 
     event ItemReturned(uint256 indexed itemId, address indexed renter);
+
+    event InvoiceCreated(
+        uint256 indexed invoiceId,
+        uint256 indexed itemId,
+        uint256 totalPrice,
+        uint256 dayLongRent
+    );
 
     constructor() Ownable(msg.sender) {}
 
@@ -42,18 +58,42 @@ contract ThingShare is Ownable {
         nextItemId++;
     }
 
-    // Function to rent an item
-    function rentItem(uint256 itemId, uint256 totalPrice) external payable {
+    // Function to create an invoice for renting an item
+    function createInvoice(
+        uint256 itemId,
+        uint256 dayLongRent,
+        uint256 totalPrice
+    ) external {
         RentalItem storage item = rentalItems[itemId];
 
         require(item.isAvailable, "Item is not available");
+
+        invoices[nextInvoiceId] = Invoice({
+            itemId: itemId,
+            totalPrice: totalPrice,
+            dayLongRent: dayLongRent,
+            isPaid: false
+        });
+
+        emit InvoiceCreated(nextInvoiceId, itemId, totalPrice, dayLongRent);
+        nextInvoiceId++;
+    }
+
+    // Function to pay for an invoice and rent an item
+    function payInvoice(uint256 invoiceId) external payable {
+        Invoice storage invoice = invoices[invoiceId];
+        RentalItem storage item = rentalItems[invoice.itemId];
+
+        require(!invoice.isPaid, "Invoice is already paid");
+        require(msg.value == invoice.totalPrice, "Incorrect payment amount");
 
         // Transfer payment to the owner
         payable(item.owner).transfer(msg.value);
 
         item.isAvailable = false;
+        invoice.isPaid = true;
 
-        emit ItemRented(itemId, totalPrice);
+        emit ItemRented(invoice.itemId, invoice.totalPrice);
     }
 
     function returnItem(uint256 itemId) external {
@@ -65,5 +105,12 @@ contract ThingShare is Ownable {
         item.isAvailable = true;
 
         emit ItemReturned(itemId, msg.sender);
+    }
+
+    // Function to get invoice details
+    function getInvoice(
+        uint256 invoiceId
+    ) external view returns (Invoice memory) {
+        return invoices[invoiceId];
     }
 }
