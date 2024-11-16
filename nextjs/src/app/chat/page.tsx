@@ -1,70 +1,90 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronDown, Menu, Send, Wallet } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
+import { Send } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAccount, useWalletClient } from "wagmi";
+import { ethers } from "ethers";
+import { PushAPI, CONSTANTS } from "@pushprotocol/restapi";
 
 export default function Chat() {
+  const { address, isConnected } = useAccount();
   const [currentMessage, setCurrentMessage] = useState("");
+  const [userChat, setUserChat] = useState<any>(null);
+  const [chatData, setChatData] = useState<any>(null);
+  const [conversations, setConversations] = useState<any[]>([]);
+
+  const { data: walletClient } = useWalletClient();
+  const bobAddress = "0x622bd780C77c4d570E35aB47B829db601e606E40"; // Replace with the actual address
+
+  useEffect(() => {
+    if (walletClient) {
+      // Initialize Push Protocol client
+      const initPushClient = async () => {
+        const provider = new ethers.BrowserProvider(walletClient);
+        const signer = await provider.getSigner();
+        const user = await PushAPI.initialize(signer);
+        setUserChat(user);
+        const chatHistory = await user.chat.history(bobAddress);
+        console.log(chatHistory);
+        setChatData(chatHistory);
+
+        const chatList = await user.chat.list("CHATS");
+        console.log(chatList);
+        if (chatList && chatList.length > 0) {
+          setConversations(chatList);
+        } else {
+          setConversations([
+            {
+              id: 1,
+              name: "John Doe",
+              avatar: "/placeholder.svg",
+              lastMessage: "That sounds great! When can I pick it up?",
+              lastMessageTime: "2m ago",
+            },
+            {
+              id: 2,
+              name: "Jane Smith",
+              avatar: "/placeholder.svg",
+              lastMessage: "Is the laptop still available?",
+              lastMessageTime: "1h ago",
+            },
+            {
+              id: 3,
+              name: "Mike Johnson",
+              avatar: "/placeholder.svg",
+              lastMessage: "Thanks for the quick response!",
+              lastMessageTime: "2h ago",
+            },
+          ]);
+        }
+      };
+
+      initPushClient();
+    }
+  }, [walletClient]);
+
+  const handleSendMessage = async (e: any) => {
+    e.preventDefault();
+    if (userChat && currentMessage) {
+      console.log("start message");
+      // Send message using Push Protocol
+      await userChat.chat.send(bobAddress, {
+        type: "Text",
+        content: currentMessage,
+      });
+      console.log("message sent");
+      setCurrentMessage("");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="px-4 lg:px-6 h-14 flex items-center border-b relative">
-        <Button variant="ghost" size="icon" className="lg:hidden">
-          <Menu className="h-6 w-6" />
-        </Button>
-        <Link
-          className="flex items-center justify-center ml-4 lg:ml-0"
-          href="#"
-        >
-          <span className="font-bold text-xl">ChainRent</span>
-        </Link>
-        <nav className="hidden lg:flex gap-6 ml-10">
-          <Link className="text-sm font-medium hover:text-black/70" href="#">
-            Home
-          </Link>
-          <Link className="text-sm font-medium hover:text-black/70" href="#">
-            About
-          </Link>
-          <Link className="text-sm font-medium hover:text-black/70" href="#">
-            Blog
-          </Link>
-        </nav>
-        <div className="ml-auto flex gap-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 rounded-full border-2"
-              >
-                <Wallet className="h-4 w-4" />
-                Select Network
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Ethereum</DropdownMenuItem>
-              <DropdownMenuItem>Polygon</DropdownMenuItem>
-              <DropdownMenuItem>Arbitrum</DropdownMenuItem>
-              <DropdownMenuItem>Optimism</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button className="rounded-full bg-black text-white hover:bg-black/90">
-            Connect Wallet
-          </Button>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#4F46E5] via-[#10B981] to-[#3B82F6]" />
-      </header>
       <div className="container mx-auto px-4 py-8 flex gap-6">
         <div className="w-80 hidden lg:block border-r pr-6">
           <div className="space-y-4">
@@ -86,7 +106,7 @@ export default function Chat() {
                       src={conversation.avatar}
                       alt={conversation.name}
                     />
-                    <AvatarFallback>{conversation.name[0]}</AvatarFallback>
+                    <AvatarFallback>{conversation?.name?.[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 overflow-hidden">
                     <div className="flex items-center justify-between">
@@ -120,41 +140,24 @@ export default function Chat() {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto space-y-4 pb-4">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`flex gap-3 ${
-                  message.sender === "me" ? "flex-row-reverse" : ""
-                }`}
-              >
-                <Avatar className="h-8 w-8 border">
-                  <AvatarImage src={message.avatar} alt={message.sender} />
-                  <AvatarFallback>{message.sender[0]}</AvatarFallback>
-                </Avatar>
-                <div
-                  className={`group relative max-w-[80%] rounded-2xl px-4 py-2 ${
-                    message.sender === "me"
-                      ? "bg-[#4F46E5] text-white"
-                      : "bg-gray-100"
-                  }`}
-                >
-                  <p className="text-sm">{message.content}</p>
-                  <span className="absolute bottom-0 text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {message.time}
-                  </span>
+            {chatData &&
+              chatData.map((chat: any, index: number) => (
+                <div key={index}>
+                  <p>
+                    <strong>From:</strong> {chat.fromDID}
+                  </p>
+                  <p>
+                    <strong>Message:</strong> {chat.messageContent}
+                  </p>
+                  <p>
+                    <strong>Timestamp:</strong>{" "}
+                    {new Date(chat.timestamp).toLocaleString()}
+                  </p>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
           <div className="border-t pt-4 mt-auto">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                // Handle message submission
-                setCurrentMessage("");
-              }}
-              className="flex gap-4"
-            >
+            <form onSubmit={handleSendMessage} className="flex gap-4">
               <Input
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
@@ -175,63 +178,3 @@ export default function Chat() {
     </div>
   );
 }
-
-const conversations = [
-  {
-    id: 1,
-    name: "John Doe",
-    avatar: "/placeholder.svg",
-    lastMessage: "That sounds great! When can I pick it up?",
-    lastMessageTime: "2m ago",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    avatar: "/placeholder.svg",
-    lastMessage: "Is the laptop still available?",
-    lastMessageTime: "1h ago",
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    avatar: "/placeholder.svg",
-    lastMessage: "Thanks for the quick response!",
-    lastMessageTime: "2h ago",
-  },
-];
-
-const messages = [
-  {
-    sender: "other",
-    content:
-      "Hey, I'm interested in renting your gaming PC. Is it still available?",
-    time: "10:30 AM",
-    avatar: "/placeholder.svg",
-  },
-  {
-    sender: "me",
-    content: "Yes, it's available! When would you like to rent it?",
-    time: "10:32 AM",
-    avatar: "/placeholder.svg",
-  },
-  {
-    sender: "other",
-    content:
-      "I'm thinking about next weekend, from Friday to Sunday. Would that work?",
-    time: "10:33 AM",
-    avatar: "/placeholder.svg",
-  },
-  {
-    sender: "me",
-    content:
-      "That works perfectly! The total for 3 days would be 0.3 ETH. Would you like to proceed with the booking?",
-    time: "10:35 AM",
-    avatar: "/placeholder.svg",
-  },
-  {
-    sender: "other",
-    content: "Yes, that sounds great! How do we handle the payment?",
-    time: "10:36 AM",
-    avatar: "/placeholder.svg",
-  },
-];
