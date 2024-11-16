@@ -77,7 +77,7 @@ export const getItemDetails = async (id: string): Promise<Item> => {
 
 export const getListingsByOwner = async (owner: string): Promise<Item[]> => {
   try {
-    const variables = { owner };
+    const variables = { owner: owner.toLowerCase() };
     const data = await client.request(GET_ITEMS_BY_OWNER, variables);
     return data.items;
   } catch (error) {

@@ -26,6 +26,7 @@ export function handleItemListed(event: ItemListedEvent): void {
     item.price = event.params.pricePerDay;
     item.owner = event.params.owner.toHexString();
     item.metadata = cid;
+    item.cid = cid;
 
     ItemMetadataTemplate.create(cid);
   }

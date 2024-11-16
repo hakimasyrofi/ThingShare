@@ -33,6 +33,7 @@ type Item @entity {
   metadata: ItemMetadata
   price: BigInt!
   owner: String!
+  cid: String!
 }
 
 type ItemMetadata @entity {
