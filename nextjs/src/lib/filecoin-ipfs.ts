@@ -8,11 +8,11 @@ import lighthouse from "@lighthouse-web3/sdk";
  * @param {object} dealParameters - Custom parameters for file storage deals(check FVM section).
  * @return {object} - Returns details about the uploaded file.
  */
-const lighthouseApiKey = process.env.LIGHTHOUSE_API_KEY || "";
+const lighthouseApiKey = process.env.NEXT_PUBLIC_LIGHTHOUSE_API_KEY || "";
 
-async function uploadToLighthouse(file: File) {
+export async function uploadToLighthouse(file: File) {
   try {
-    const uploadResponse = await lighthouse.upload(file, lighthouseApiKey);
+    const uploadResponse = await lighthouse.upload([file], lighthouseApiKey);
     console.log(uploadResponse);
     return uploadResponse;
   } catch (error) {

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { uploadToLighthouse } from "@/lib/filecoin-ipfs";
 import { ImageIcon, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
@@ -51,9 +52,11 @@ export default function CreateListing() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(formData);
+    const response = await uploadToLighthouse(formData.image!);
+    console.log(response);
   };
 
   return (
@@ -105,7 +108,7 @@ export default function CreateListing() {
                   <Label>Image</Label>
                   <div className="grid grid-cols-1 gap-4">
                     {formData.preview && (
-                      <div className="relative aspect-square rounded-lg border-2 overflow-hidden group">
+                      <div className="relative w-60 h-60 rounded-lg border-2 overflow-hidden group">
                         <Image
                           src={formData.preview}
                           alt="Preview"
@@ -123,7 +126,7 @@ export default function CreateListing() {
                     )}
                     {!formData.preview && (
                       <div
-                        className="aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer relative"
+                        className="w-60 h-60 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 hover:bg-gray-50 transition-colors cursor-pointer relative"
                         onClick={handleClick}
                       >
                         <Input
