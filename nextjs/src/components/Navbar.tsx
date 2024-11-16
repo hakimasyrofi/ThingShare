@@ -7,6 +7,7 @@ import {
 import { ChevronDown, Menu, Wallet } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export const Navbar = () => {
   return (
@@ -15,7 +16,13 @@ export const Navbar = () => {
         <Menu className="h-6 w-6" />
       </Button>
       <Link className="flex items-center justify-center ml-4 lg:ml-0" href="#">
-        <span className="font-bold text-xl">ThingShare</span>
+        <Image
+          src="/logo.png"
+          alt="ThingShare"
+          width={120}
+          height={120}
+          style={{ width: "auto", height: "auto" }}
+        />
       </Link>
       {/* <nav className="hidden lg:flex gap-6 ml-10">
         <Link className="text-sm font-medium hover:text-black/70" href="#">
