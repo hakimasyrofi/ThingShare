@@ -129,7 +129,7 @@ export default function Detail() {
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Total Price:</span>
                   <span className="font-bold">
-                    {formatEther(item.price * rentalDays)} ETH
+                    {formatEther(Number(item.price) * rentalDays)} ETH
                   </span>
                 </div>
                 <Button className="w-full rounded-full bg-black text-white hover:bg-black/90">
