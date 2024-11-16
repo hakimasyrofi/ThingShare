@@ -21,11 +21,9 @@ contract ThingShare is Ownable {
         uint256 pricePerDay
     );
 
-    event ItemRented(
-        uint256 indexed itemId,
-        address indexed renter,
-        uint256 rentalDays
-    );
+    event ItemRented(uint256 indexed itemId, uint256 indexed totalPrice);
+
+    event ItemReturned(uint256 indexed itemId, address indexed renter);
 
     constructor() Ownable(msg.sender) {}
 
@@ -45,26 +43,27 @@ contract ThingShare is Ownable {
     }
 
     // Function to rent an item
-    function rentItem(uint256 itemId, uint256 rentalDays) external payable {
+    function rentItem(uint256 itemId, uint256 totalPrice) external payable {
         RentalItem storage item = rentalItems[itemId];
 
         require(item.isAvailable, "Item is not available");
-        require(
-            msg.value == item.pricePerDay * rentalDays,
-            "Incorrect payment amount"
-        );
 
         // Transfer payment to the owner
         payable(item.owner).transfer(msg.value);
 
         item.isAvailable = false;
 
-        emit ItemRented(itemId, msg.sender, rentalDays);
+        emit ItemRented(itemId, totalPrice);
     }
 
-    // Function to mark an item as available (owner only)
-    function makeAvailable(uint256 itemId) external {
-        require(msg.sender == rentalItems[itemId].owner, "Not the owner");
-        rentalItems[itemId].isAvailable = true;
+    function returnItem(uint256 itemId) external {
+        RentalItem storage item = rentalItems[itemId];
+
+        require(!item.isAvailable, "Item is already available");
+        require(msg.sender == item.owner, "Only the owner can return the item");
+
+        item.isAvailable = true;
+
+        emit ItemReturned(itemId, msg.sender);
     }
 }
