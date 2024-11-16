@@ -8,6 +8,7 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
 import { getListing } from "@/lib/subgraph";
 import { Item } from "@/interface/item.interface";
+import { formatEther } from "ethers";
 
 export default function Listing() {
   const [items, setItems] = useState<Item[]>([]);
@@ -47,13 +48,11 @@ export default function Listing() {
             <Card
               key={item.id}
               className="overflow-hidden border-2 cursor-pointer"
+              onClick={() => (window.location.href = `/detail/${item.id}`)}
             >
               <div className="relative aspect-square">
                 <Image
-                  src={item.metadata.image.replace(
-                    "ipfs://",
-                    "https://ipfs.io/ipfs/"
-                  )}
+                  src={item.metadata.image}
                   alt={item.metadata.name}
                   fill
                   className="object-cover"
@@ -75,7 +74,7 @@ export default function Listing() {
                 </h3>
                 <div className="flex justify-between items-center">
                   <div className="flex items-baseline gap-2">
-                    <span className="font-bold">{item.price}</span>
+                    <span className="font-bold">{formatEther(item.price)}</span>
                     <span className="text-sm text-gray-500">/day</span>
                   </div>
                   {/* {item.originalPrice && (

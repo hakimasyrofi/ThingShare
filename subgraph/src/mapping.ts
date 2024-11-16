@@ -11,7 +11,9 @@ export function handleItemMetadata(content: Bytes): void {
 
     if (name && image && description) {
       itemMetadata.name = name.toString();
-      itemMetadata.image = image.toString();
+      itemMetadata.image = image
+        .toString()
+        .replace("ipfs://", "https://ipfs.io/ipfs/");
       itemMetadata.description = description.toString();
     }
 
